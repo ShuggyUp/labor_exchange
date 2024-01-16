@@ -46,10 +46,10 @@ async def test_create(sa_session):
         email="bashkort@example.com",
         password="eshkere!",
         password2="eshkere!",
-        is_company=False
+        is_company=False,
     )
 
-    new_user = await user_query.create(sa_session, user_schema=user)
+    new_user = await user_query.create_user(sa_session, user_schema=user)
     assert new_user is not None
     assert new_user.name == "Uchpochmak"
     assert new_user.hashed_password != "eshkere!"
@@ -63,9 +63,9 @@ async def test_create_password_mismatch(sa_session):
             email="bashkort@example.com",
             password="eshkere!",
             password2="eshkero!",
-            is_company=False
+            is_company=False,
         )
-        await user_query.create(sa_session, user_schema=user)
+        await user_query.create_user(sa_session, user_schema=user)
 
 
 @pytest.mark.asyncio
@@ -75,6 +75,6 @@ async def test_update(sa_session):
     sa_session.flush()
 
     user.name = "updated_name"
-    updated_user = await user_query.update(sa_session, user=user)
+    updated_user = await user_query.update_user(sa_session, user=user)
     assert user.id == updated_user.id
     assert updated_user.name == "updated_name"
