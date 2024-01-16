@@ -6,8 +6,12 @@ from dependencies.db import get_db
 from models import User
 
 
-async def get_current_user(db: AsyncSession = Depends(get_db), token: str = Depends(JWTBearer())) -> User:
-    cred_exception = HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Credentials are not valid")
+async def get_current_user(
+    db: AsyncSession = Depends(get_db), token: str = Depends(JWTBearer())
+) -> User:
+    cred_exception = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN, detail="Credentials are not valid"
+    )
     payload = decode_access_token(token)
     if payload is None:
         raise cred_exception

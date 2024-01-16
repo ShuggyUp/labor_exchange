@@ -18,7 +18,12 @@ def verify_password(password: str, hash: str) -> bool:
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    to_encode.update({"exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)})
+    to_encode.update(
+        {
+            "exp": datetime.datetime.utcnow()
+            + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        }
+    )
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
@@ -36,7 +41,9 @@ class JWTBearer(HTTPBearer):
 
     async def __call__(self, request: Request):
         credentials = await super(JWTBearer, self).__call__(request)
-        exp = HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid auth token")
+        exp = HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid auth token"
+        )
         if credentials:
             token = decode_access_token(credentials.credentials)
             if token is None:
