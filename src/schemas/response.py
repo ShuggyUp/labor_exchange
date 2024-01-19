@@ -15,6 +15,15 @@ class ResponseSchema(BaseModel):
     class Config:
         orm_mode = True
 
+        schema_extra = {
+            "example": {
+                "id": 4,
+                "user_id": 36,
+                "job_id": 9,
+                "message": "Хочу тут работать",
+            }
+        }
+
 
 class ResponseInSchema(BaseModel):
     """
@@ -23,3 +32,11 @@ class ResponseInSchema(BaseModel):
 
     job_id: int = Field(...)
     message: Optional[str] = Field(defaut=None)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "job_id": 5,
+                "message": "Хочу тут работать",
+            }
+        }

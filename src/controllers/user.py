@@ -21,7 +21,7 @@ async def update_user(
             status_code=status.HTTP_409_CONFLICT, detail="Такой email уже существует"
         )
 
-    if old_user is None or old_user.email != current_user.email:
+    if not old_user or old_user.email != current_user.email:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден"
         )

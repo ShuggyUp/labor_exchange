@@ -2,7 +2,7 @@ import datetime
 
 from sqlalchemy.orm import relationship
 
-from db_settings import Base
+from db_connection import Base
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 
 

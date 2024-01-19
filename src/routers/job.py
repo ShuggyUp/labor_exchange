@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, Query, Body
 from schemas import JobSchema, JobInSchema, JobUpdateSchema
-from dependencies import get_db, get_current_user
+from dependencies import get_db, get_current_user, access_verification_for_company
 from sqlalchemy.ext.asyncio import AsyncSession
 from models import User
 from controllers import job as job_controller
@@ -38,7 +38,11 @@ async def get_job_by_id(
     )
 
 
-@router.post("", response_model=JobSchema)
+@router.post(
+    "",
+    response_model=JobSchema,
+    dependencies=[Depends(access_verification_for_company)],
+)
 async def create_job(
     job: JobInSchema = Body(...),
     db: AsyncSession = Depends(get_db),
@@ -50,7 +54,11 @@ async def create_job(
     return await job_controller.create_job(job=job, db=db, current_user=current_user)
 
 
-@router.put("", response_model=JobSchema)
+@router.put(
+    "",
+    response_model=JobSchema,
+    dependencies=[Depends(access_verification_for_company)],
+)
 async def update_job(
     job_id: int = Query(...),
     job: JobUpdateSchema = Body(...),
@@ -65,7 +73,11 @@ async def update_job(
     )
 
 
-@router.delete("", response_model=JobSchema)
+@router.delete(
+    "",
+    response_model=JobSchema,
+    dependencies=[Depends(access_verification_for_company)],
+)
 async def delete_job(
     job_id: int = Query(...),
     db: AsyncSession = Depends(get_db),

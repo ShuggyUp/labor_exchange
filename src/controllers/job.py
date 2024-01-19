@@ -30,7 +30,7 @@ async def get_job_by_id_for_user_or_company(
     else:
         job = await job_queries.get_available_job_by_id_for_user(db=db, job_id=job_id)
 
-    if job is None:
+    if not job:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Запись не найдена"
         )
@@ -40,9 +40,6 @@ async def get_job_by_id_for_user_or_company(
 async def create_job(
     job: JobInSchema, db: AsyncSession, current_user: User
 ) -> JobSchema:
-    if not current_user.is_company:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Нет доступа")
-
     job = await job_queries.create_job(db=db, job_schema=job, user_id=current_user.id)
     return JobSchema.from_orm(job)
 
@@ -50,14 +47,11 @@ async def create_job(
 async def update_available_job(
     job_id: int, job: JobUpdateSchema, db: AsyncSession, current_user: User
 ) -> JobSchema:
-    if not current_user.is_company:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Нет доступа")
-
     old_job = await job_queries.get_available_job_by_id_for_company_to_delete_or_update(
         db=db, job_id=job_id, user_id=current_user.id
     )
 
-    if old_job is None:
+    if not old_job:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Запись не найдена"
         )
@@ -77,13 +71,10 @@ async def update_available_job(
 async def delete_available_job(
     job_id: int, db: AsyncSession, current_user: User
 ) -> JobSchema:
-    if not current_user.is_company:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Нет доступа")
-
     job = await job_queries.get_available_job_by_id_for_company_to_delete_or_update(
         db=db, job_id=job_id, user_id=current_user.id
     )
-    if job is None:
+    if not job:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Запись не найдена"
         )

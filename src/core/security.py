@@ -3,7 +3,7 @@ from fastapi import Request, HTTPException, status
 from fastapi.security import HTTPBearer
 from passlib.context import CryptContext
 from jose import jwt
-from .config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from config import token_settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -20,16 +20,39 @@ def create_access_token(data: dict) -> str:
     to_encode = data.copy()
     to_encode.update(
         {
-            "exp": datetime.datetime.utcnow()
-            + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            "time": str(
+                datetime.datetime.utcnow()
+                + datetime.timedelta(minutes=token_settings.access_token_expire_minutes)
+            )
         }
     )
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(
+        to_encode, token_settings.secret_key, algorithm=token_settings.algorithm
+    )
 
 
-def decode_access_token(token: str):
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    to_encode.update(
+        {
+            "time": str(
+                datetime.datetime.utcnow()
+                + datetime.timedelta(
+                    minutes=token_settings.refresh_token_expire_minutes
+                )
+            )
+        }
+    )
+    return jwt.encode(
+        to_encode, token_settings.secret_key, algorithm=token_settings.algorithm
+    )
+
+
+def decode_token(token: str):
     try:
-        encoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        encoded_jwt = jwt.decode(
+            token, token_settings.secret_key, algorithms=[token_settings.algorithm]
+        )
     except jwt.JWSError:
         return None
     return encoded_jwt
@@ -45,7 +68,7 @@ class JWTBearer(HTTPBearer):
             status_code=status.HTTP_403_FORBIDDEN, detail="Invalid auth token"
         )
         if credentials:
-            token = decode_access_token(credentials.credentials)
+            token = decode_token(credentials.credentials)
             if token is None:
                 raise exp
             return credentials.credentials

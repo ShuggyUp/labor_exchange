@@ -3,6 +3,7 @@ from schemas import JobInSchema
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, or_
+from sqlalchemy.orm.query import Query
 
 
 async def __save_instance_db(db: AsyncSession, job: Job) -> Job:
@@ -10,6 +11,16 @@ async def __save_instance_db(db: AsyncSession, job: Job) -> Job:
     await db.commit()
     await db.refresh(job)
     return job
+
+
+async def __execute_sql_with_many_results(db: AsyncSession, query: Query) -> List[Job]:
+    res = await db.execute(query)
+    return res.scalars().all()
+
+
+async def __execute_sql_with_one_result(db: AsyncSession, query: Query) -> Job:
+    res = await db.execute(query)
+    return res.scalars().first()
 
 
 async def create_job(db: AsyncSession, job_schema: JobInSchema, user_id: int) -> Job:
@@ -38,8 +49,7 @@ async def get_all_available_jobs_for_user(
     db: AsyncSession, limit: int = 100, skip: int = 0
 ) -> List[Job]:
     query = select(Job).where(Job.is_active.is_(True)).limit(limit).offset(skip)
-    res = await db.execute(query)
-    return res.scalars().all()
+    return await __execute_sql_with_many_results(db, query)
 
 
 async def get_all_available_jobs_for_company(
@@ -51,16 +61,14 @@ async def get_all_available_jobs_for_company(
         .limit(limit)
         .offset(skip)
     )
-    res = await db.execute(query)
-    return res.scalars().all()
+    return await __execute_sql_with_many_results(db, query)
 
 
 async def get_available_job_by_id_for_user(
     db: AsyncSession, job_id: int
 ) -> Optional[Job]:
     query = select(Job).where(Job.id == job_id, Job.is_active.is_(True))
-    res = await db.execute(query)
-    return res.scalars().first()
+    return await __execute_sql_with_one_result(db, query)
 
 
 async def get_available_job_by_id_for_company(
@@ -69,13 +77,11 @@ async def get_available_job_by_id_for_company(
     query = select(Job).where(
         Job.id == job_id, or_(Job.is_active.is_(True), Job.user_id == user_id)
     )
-    res = await db.execute(query)
-    return res.scalars().first()
+    return await __execute_sql_with_one_result(db, query)
 
 
 async def get_available_job_by_id_for_company_to_delete_or_update(
     db: AsyncSession, job_id: int, user_id: int
 ) -> Optional[Job]:
     query = select(Job).where(Job.id == job_id, Job.user_id == user_id)
-    res = await db.execute(query)
-    return res.scalars().first()
+    return await __execute_sql_with_one_result(db, query)

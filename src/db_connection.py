@@ -1,16 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
-import os
+from config import db_settings, test_db_settings, project_settings
 
-DB_USER = os.environ.get("DB_USER", "admin")
-DB_PASS = os.environ.get("DB_PASS", "admin")
-DB_HOST = os.environ.get("DB_HOST", "localhost")
-DB_NAME = os.environ.get("DB_NAME", "labor-exchange")
 
-SQLALCHEMY_DATABASE_URL = (
-    f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
-)
+if project_settings.stage == "test":
+    SQLALCHEMY_DATABASE_URL = test_db_settings.db_url
+else:
+    SQLALCHEMY_DATABASE_URL = db_settings.db_url
 
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
 

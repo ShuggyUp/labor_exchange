@@ -12,8 +12,8 @@ from main import app
 import pytest
 import pytest_asyncio
 from unittest.mock import MagicMock
-from db_settings import SQLALCHEMY_DATABASE_URL
-from schemas import TokenSchema
+from db_connection import SQLALCHEMY_DATABASE_URL
+from schemas import AccessTokenSchema
 from core.security import create_access_token
 from dependencies import get_db
 from httpx import AsyncClient
@@ -101,7 +101,7 @@ async def mock_another_company(sa_session: AsyncSession) -> User:
 
 @pytest_asyncio.fixture()
 async def mock_access_token_user(mock_user: User):
-    token = TokenSchema(
+    token = AccessTokenSchema(
         access_token=create_access_token({"sub": mock_user.email}), token_type="Bearer"
     )
     return token
@@ -109,7 +109,7 @@ async def mock_access_token_user(mock_user: User):
 
 @pytest_asyncio.fixture()
 async def mock_access_token_company(mock_own_company: User):
-    token = TokenSchema(
+    token = AccessTokenSchema(
         access_token=create_access_token({"sub": mock_own_company.email}),
         token_type="Bearer",
     )
@@ -117,7 +117,7 @@ async def mock_access_token_company(mock_own_company: User):
 
 
 @pytest_asyncio.fixture()
-async def mock_app_user(sa_session, mock_access_token_user: TokenSchema):
+async def mock_app_user(sa_session, mock_access_token_user: AccessTokenSchema):
     app.dependency_overrides[get_db] = lambda: sa_session
 
     async with AsyncClient(app=app, base_url="http://test") as client:
@@ -128,7 +128,7 @@ async def mock_app_user(sa_session, mock_access_token_user: TokenSchema):
 
 
 @pytest_asyncio.fixture()
-async def mock_app_company(sa_session, mock_access_token_company: TokenSchema):
+async def mock_app_company(sa_session, mock_access_token_company: AccessTokenSchema):
     app.dependency_overrides[get_db] = lambda: sa_session
 
     async with AsyncClient(app=app, base_url="http://test") as client:

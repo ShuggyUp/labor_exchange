@@ -15,7 +15,7 @@ async def test_get_available_jobs_for_company(
     sa_session.add(available_job)
     sa_session.flush()
 
-    responses = await mock_app_company.get(url=f"/jobs")
+    responses = await mock_app_company.get(url="/jobs")
 
     assert responses.status_code == status.HTTP_200_OK
     assert len(responses.json()) == 1
@@ -23,7 +23,7 @@ async def test_get_available_jobs_for_company(
 
 @pytest.mark.asyncio
 async def test_get_null_list_jobs_for_company(mock_app_company):
-    responses = await mock_app_company.get(url=f"/jobs")
+    responses = await mock_app_company.get(url="/jobs")
 
     assert responses.status_code == status.HTTP_200_OK
     assert len(responses.json()) == 0
@@ -45,7 +45,7 @@ async def test_get_available_jobs_for_user(
 
     sa_session.flush()
 
-    responses = await mock_app_user.get(url=f"/jobs")
+    responses = await mock_app_user.get(url="/jobs")
 
     assert responses.status_code == status.HTTP_200_OK
     assert len(responses.json()) == 1
@@ -53,7 +53,7 @@ async def test_get_available_jobs_for_user(
 
 @pytest.mark.asyncio
 async def test_get_null_list_jobs_for_user(mock_app_user):
-    responses = await mock_app_user.get(url=f"/jobs")
+    responses = await mock_app_user.get(url="/jobs")
 
     assert responses.status_code == status.HTTP_200_OK
     assert len(responses.json()) == 0
