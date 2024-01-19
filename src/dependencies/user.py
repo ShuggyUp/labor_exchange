@@ -1,4 +1,3 @@
-from datetime import datetime
 from fastapi import Depends, HTTPException, status
 from core.security import JWTBearer, decode_token
 from queries import user as user_queries
@@ -21,10 +20,5 @@ async def get_current_user(
         raise cred_exception
     user = await user_queries.get_by_email(db=db, email=email)
     if user is None:
-        raise cred_exception
-    exp_token_time: datetime = datetime.strptime(
-        payload.get("time"), "%Y-%m-%d %H:%M:%S.%f"
-    )
-    if exp_token_time < datetime.utcnow():
         raise cred_exception
     return user

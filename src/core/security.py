@@ -16,31 +16,12 @@ def verify_password(password: str, hash: str) -> bool:
     return pwd_context.verify(password, hash)
 
 
-def create_access_token(data: dict) -> str:
+def create_token(data: dict) -> str:
     to_encode = data.copy()
     to_encode.update(
         {
-            "time": str(
-                datetime.datetime.utcnow()
-                + datetime.timedelta(minutes=token_settings.access_token_expire_minutes)
-            )
-        }
-    )
-    return jwt.encode(
-        to_encode, token_settings.secret_key, algorithm=token_settings.algorithm
-    )
-
-
-def create_refresh_token(data: dict) -> str:
-    to_encode = data.copy()
-    to_encode.update(
-        {
-            "time": str(
-                datetime.datetime.utcnow()
-                + datetime.timedelta(
-                    minutes=token_settings.refresh_token_expire_minutes
-                )
-            )
+            "exp": datetime.datetime.utcnow()
+            + datetime.timedelta(minutes=token_settings.access_token_expire_minutes)
         }
     )
     return jwt.encode(
@@ -53,7 +34,7 @@ def decode_token(token: str):
         encoded_jwt = jwt.decode(
             token, token_settings.secret_key, algorithms=[token_settings.algorithm]
         )
-    except jwt.JWSError:
+    except jwt.ExpiredSignatureError:
         return None
     return encoded_jwt
 

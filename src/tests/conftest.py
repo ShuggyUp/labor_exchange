@@ -14,7 +14,7 @@ import pytest_asyncio
 from unittest.mock import MagicMock
 from db_connection import SQLALCHEMY_DATABASE_URL
 from schemas import AccessTokenSchema
-from core.security import create_access_token
+from core.security import create_token
 from dependencies import get_db
 from httpx import AsyncClient
 
@@ -102,7 +102,7 @@ async def mock_another_company(sa_session: AsyncSession) -> User:
 @pytest_asyncio.fixture()
 async def mock_access_token_user(mock_user: User):
     token = AccessTokenSchema(
-        access_token=create_access_token({"sub": mock_user.email}), token_type="Bearer"
+        access_token=create_token({"sub": mock_user.email}), token_type="Bearer"
     )
     return token
 
@@ -110,7 +110,7 @@ async def mock_access_token_user(mock_user: User):
 @pytest_asyncio.fixture()
 async def mock_access_token_company(mock_own_company: User):
     token = AccessTokenSchema(
-        access_token=create_access_token({"sub": mock_own_company.email}),
+        access_token=create_token({"sub": mock_own_company.email}),
         token_type="Bearer",
     )
     return token
