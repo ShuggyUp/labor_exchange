@@ -5,7 +5,8 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine
-from db_settings import DB_NAME, DB_HOST, DB_PASS, DB_USER, Base
+from db_connection import Base
+from config import db_settings, test_db_settings, project_settings
 
 from alembic import context
 from models import *
@@ -16,10 +17,18 @@ config = context.config
 
 section = config.config_ini_section
 
-config.set_section_option(section, "DB_USER", DB_USER)
-config.set_section_option(section, "DB_HOST", DB_HOST)
-config.set_section_option(section, "DB_PASS", DB_PASS)
-config.set_section_option(section, "DB_NAME", DB_NAME)
+if project_settings.stage == "test":
+    config.set_section_option(section, "DB_HOST", test_db_settings.db_host)
+    config.set_section_option(section, "DB_PORT", test_db_settings.db_port)
+    config.set_section_option(section, "DB_NAME", test_db_settings.db_name)
+    config.set_section_option(section, "DB_USER", test_db_settings.db_user)
+    config.set_section_option(section, "DB_PASS", test_db_settings.db_pass)
+else:
+    config.set_section_option(section, "DB_HOST", db_settings.db_host)
+    config.set_section_option(section, "DB_PORT", db_settings.db_port)
+    config.set_section_option(section, "DB_NAME", db_settings.db_name)
+    config.set_section_option(section, "DB_USER", db_settings.db_user)
+    config.set_section_option(section, "DB_PASS", db_settings.db_pass)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

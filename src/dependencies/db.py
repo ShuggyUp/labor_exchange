@@ -1,4 +1,4 @@
-from db_settings import SessionLocal
+from db_connection import SessionLocal
 
 
 async def get_db():

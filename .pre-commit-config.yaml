@@ -1,0 +1,10 @@
+default_language_version:
+  python: python3.9
+
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        exclude: ^.*\b(migrations)\b.*$
+        language_version: python3.9
